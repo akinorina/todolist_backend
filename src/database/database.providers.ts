@@ -1,12 +1,13 @@
 import { DataSource } from 'typeorm';
+import configuration from 'src/config/configuration';
 
 export const dataSource = new DataSource({
   type: 'postgres',
-  host: 'db',
-  port: 5432,
-  username: 'todolist',
-  password: 'todolist',
-  database: 'todolist',
+  host: configuration().database.host,
+  port: configuration().database.port,
+  username: configuration().database.user,
+  password: configuration().database.password,
+  database: configuration().database.dbname,
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../database/migrations/*{.ts,.js}'],
   synchronize: false,
