@@ -3,9 +3,10 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SampleLogsController } from './sample_logs/sample_logs.controller';
 import { SampleLogsModule } from './sample_logs/sample_logs.module';
+import { TodosModule } from './todos/todos.module';
 
 @Module({
-  imports: [SampleLogsModule],
+  imports: [SampleLogsModule, TodosModule],
   controllers: [AppController, SampleLogsController],
   providers: [AppService],
 })
