@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { Repository } from 'typeorm';
@@ -20,14 +20,43 @@ export class TodosService {
   }
 
   async findOne(id: number) {
-    return await this.todoRepository.findOneByOrFail({ id: id });
+    try {
+      return await this.todoRepository.findOneByOrFail({ id: id });
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (err.name === 'EntityNotFoundError') {
+        throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND);
+      }
+      throw err;
+    }
   }
 
   async update(id: number, updateTodoDto: UpdateTodoDto) {
-    return await this.todoRepository.update(id, updateTodoDto);
+    try {
+      await this.todoRepository.update(id, updateTodoDto);
+      return await this.todoRepository.findOneByOrFail({ id: id });
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (err.name === 'EntityNotFoundError') {
+        throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND);
+      }
+      throw err;
+    }
   }
 
   async remove(id: number) {
-    return await this.todoRepository.softDelete(id);
+    try {
+      await this.todoRepository.softDelete(id);
+      return await this.todoRepository.findOneOrFail({
+        where: { id: id },
+        withDeleted: true,
+      });
+    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+      if (err.name === 'EntityNotFoundError') {
+        throw new HttpException('NOT FOUND', HttpStatus.NOT_FOUND);
+      }
+      throw err;
+    }
   }
 }
